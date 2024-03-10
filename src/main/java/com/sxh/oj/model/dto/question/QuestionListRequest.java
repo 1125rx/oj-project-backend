@@ -3,18 +3,22 @@ package com.sxh.oj.model.dto.question;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @Author：SongXH
  * @Package：com.sxh.oj.model.dto.question
  * @Project：backend
- * @name：QuestionAddRequest
- * @Filename：QuestionAddRequest
- * @Date：2024/3/9 10:09
+ * @name：QuestionListRequest
+ * @Filename：QuestionListRequest
+ * @Date：2024/3/10 12:26
  */
 @Data
-public class QuestionAddRequest implements Serializable {
+public class QuestionListRequest implements Serializable {
+    /**
+     * id
+     */
+    private Long id;
+
     /**
      * 标题
      */
@@ -28,23 +32,12 @@ public class QuestionAddRequest implements Serializable {
     /**
      * 标签列表
      */
-    private List<String> tags;
+    private String tags;
 
     /**
-     * 题目答案
+     * 创建用户 id
      */
-    private List<Answer> answer;
-
-    /**
-     * 判题用例
-     */
-    private List<JudgeCase> judgeCase;
-
-    /**
-     * 判题配置
-     */
-    private JudgeConfig judgeConfig;
+    private Long userId;
 
     private static final long serialVersionUID = 1L;
-
 }

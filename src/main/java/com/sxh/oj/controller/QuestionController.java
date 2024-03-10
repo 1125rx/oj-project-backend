@@ -1,5 +1,6 @@
 package com.sxh.oj.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.sxh.oj.annotation.AuthCheck;
@@ -18,6 +19,7 @@ import com.sxh.oj.service.QuestionService;
 import com.sxh.oj.service.QuestionSubmitService;
 import com.sxh.oj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +64,9 @@ public class QuestionController {
         List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
+        }
+        if (questionAddRequest.getAnswer() != null) {
+            question.setAnswer(GSON.toJson(questionAddRequest.getAnswer()));
         }
         JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
         if (judgeConfig != null) {
@@ -168,12 +173,13 @@ public class QuestionController {
      * @param id
      * @return
      */
-    @GetMapping("/get/vo")
-    public BaseResponse<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
-        if (id <= 0) {
+    @PostMapping("/get/vo")
+    public BaseResponse<QuestionVO> getQuestionVOById(@RequestBody GetProblemRequest getProblemRequest, HttpServletRequest request) {
+        int idNum = Integer.parseInt(getProblemRequest.getId());
+        if (idNum <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Question question = questionService.getById(id);
+        Question question = questionService.getById(idNum);
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
@@ -221,6 +227,32 @@ public class QuestionController {
         Page<Question> questionPage = questionService.page(new Page<>(current, size),
                 questionService.getQueryWrapper(questionQueryRequest));
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+    }
+
+    @PostMapping("/list/vo")
+    public BaseResponse<List<QuestionVO>> listQuestionList(@RequestBody QuestionListRequest questionListRequest,
+                                                           HttpServletRequest request) {
+        //将questionListRequest中的参数封装到Question对象中，判定参数是否为空，并借助querywrapper进行查询，返回查询结果、
+        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(questionListRequest.getTitle())) {
+            queryWrapper.like("title", questionListRequest.getTitle());
+        }
+        if (StringUtils.isNotBlank(questionListRequest.getContent())) {
+            queryWrapper.like("content", questionListRequest.getContent());
+        }
+        //如果标签不为空，将标签拆分，然后进行模糊查询
+        if (StringUtils.isNotBlank(questionListRequest.getTags())) {
+            String[] tags = questionListRequest.getTags().split(",");
+            for (String tag : tags) {
+                queryWrapper.like("tags", tag);
+            }
+        }
+        //如果用户id不为空，进行查询
+        if (questionListRequest.getUserId() != null) {
+            queryWrapper.eq("userId", questionListRequest.getUserId());
+        }
+        List<Question> questionList = questionService.list(queryWrapper);
+        return ResultUtils.success(questionService.getQuestionVOList(questionList, request));
     }
 
     /**

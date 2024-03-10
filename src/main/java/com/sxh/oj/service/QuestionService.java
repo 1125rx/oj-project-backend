@@ -1,13 +1,14 @@
 package com.sxh.oj.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.sxh.oj.model.dto.question.QuestionQueryRequest;
 import com.sxh.oj.model.entity.Question;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.sxh.oj.model.vo.QuestionVO;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author song
@@ -49,6 +50,8 @@ public interface QuestionService extends IService<Question> {
      * @return
      */
     Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+
+    List<QuestionVO> getQuestionVOList(List<Question> questionList, HttpServletRequest request);
 
 
 }

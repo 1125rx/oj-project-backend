@@ -178,6 +178,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         return questionVOPage;
 
     }
+
+    @Override
+    public List<QuestionVO> getQuestionVOList(List<Question> questionList, HttpServletRequest request) {
+        return questionList.stream().map(question -> getQuestionVO(question, request))
+                .collect(Collectors.toList());
+    }
 }
 
 
